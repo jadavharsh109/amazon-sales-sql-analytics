@@ -1,277 +1,171 @@
 ﻿# 🛒 Amazon E-Commerce & Retail Sales Analytics
 
 [![MySQL](https://img.shields.io/badge/MySQL-8.0+-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
-[![SQL Engine](https://img.shields.io/badge/SQL-Advanced%20CTEs%20%26%20Window%20Functions-00758F?style=for-the-badge&logo=sqlite&logoColor=white)](https://en.wikipedia.org/wiki/SQL)
-[![Domain](https://img.shields.io/badge/Domain-Retail%20%26%20E--Commerce%20Analytics-E67E22?style=for-the-badge)](https://github.com/jadavharsh109/amazon-sales-sql-analytics)
+[![SQL](https://img.shields.io/badge/SQL-Data%20Analysis-00758F?style=for-the-badge&logo=sqlite&logoColor=white)](https://en.wikipedia.org/wiki/SQL)
+[![Domain](https://img.shields.io/badge/Domain-Retail%20%26%20Sales-E67E22?style=for-the-badge)](https://github.com/jadavharsh109/amazon-sales-sql-analytics)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Harsh%20Jadav-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/harshjadav0901/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-An enterprise-grade **SQL exploratory and financial sales analysis system** evaluating 1,000 retail transactions across three major metropolitan branches (Yangon, Naypyitaw, Mandalay) during Q1 2019. Features schema modeling, transactional feature engineering, and 35+ structured analytical queries covering revenue performance, customer segmentation, peak shopping traffic, and profit margins.
+A complete **SQL data analysis project** examining 1,000 retail sales transactions across three supermarket branches (Yangon, Naypyitaw, and Mandalay) during the first three months of 2019. 
+
+The goal of this project is to understand sales patterns, customer buying habits, peak shopping hours, and branch performance to help store managers make better business decisions.
 
 ---
 
 ## 📑 Table of Contents
-- [📌 Business Context & Objectives](#-business-context--objectives)
-- [📁 Project Structure](#-project-structure)
-- [🗄️ Database Architecture & Schema](#️-database-architecture--schema)
-- [⚙️ Data Pipeline & Feature Engineering](#️-data-pipeline--feature-engineering)
-- [📊 Key Business Insights & Analytical Queries](#-key-business-insights--analytical-queries)
-  - [1. Top Revenue-Generating Product Lines](#1-top-revenue-generating-product-lines)
-  - [2. Customer Segmentation: Member vs. Normal](#2-customer-segmentation-member-vs-normal)
-  - [3. Gender Preference by Product Line (CTE + Window Function)](#3-gender-preference-by-product-line-cte--window-function)
-  - [4. Peak Shopping Hours & Temporal Traffic](#4-peak-shopping-hours--temporal-traffic)
-  - [5. Branch & City Revenue Optimization](#5-branch--city-revenue-optimization)
-  - [6. Value-Added Tax (VAT) & Margin Analysis](#6-value-added-tax-vat--margin-analysis)
-- [🛠️ Advanced SQL Techniques Demonstrated](#️-advanced-sql-techniques-demonstrated)
-- [🚀 Quickstart & Reproduction Guide](#-quickstart--reproduction-guide)
-- [📄 Project Documentation](#-project-documentation)
+- [📌 Project Overview](#-project-overview)
+- [📁 Project Files](#-project-files)
+- [🗄️ Dataset Details](#️-dataset-details)
+- [⚙️ New Features Created](#️-new-features-created)
+- [📊 Key Business Insights](#-key-business-insights)
+- [🛠️ SQL Skills Used](#️-sql-skills-used)
+- [🚀 How to Run This Project](#-how-to-run-this-project)
+- [📄 Project Report](#-project-report)
 - [👨‍💻 Author](#-author)
 
 ---
 
-## 📌 Business Context & Objectives
+## 📌 Project Overview
 
-In competitive multi-branch retail, understanding revenue drivers, peak operational windows, and customer buying preferences is vital for inventory forecasting, dynamic promotions, and staffing optimization. 
+Running a multi-branch retail store comes with common business challenges:
+* Which product categories bring in the most money?
+* Do loyalty club members actually spend more than normal customers?
+* What time of day do most people shop, and when should more staff be scheduled?
+* Which city branch is performing best in sales and customer happiness?
 
-### Key Business Questions Addressed:
-1. **Product Line Viability:** Which product lines generate the bulk of top-line revenue, and which underperform relative to the storewide baseline?
-2. **Customer Demographics:** Do loyalty program members drive significantly higher basket sizes than non-member walk-ins?
-3. **Temporal Dynamics:** At what times of the day and days of the week are store operations most active, and when do customer ratings peak?
-4. **Geographic Distribution:** Which branch (Branch A - Yangon, Branch B - Mandalay, Branch C - Naypyitaw) delivers highest operational profitability and customer satisfaction?
+This project uses SQL to clean the sales data, build new time-based columns, and answer these questions directly.
 
 ---
 
-## 📁 Project Structure
+## 📁 Project Files
 
 ```
 amazon-sales-sql-analytics/
 ├── data/
-│   └── amazon_supermarket_sales.csv     # Cleaned, standardized 1,000-row transaction dataset
+│   └── amazon_supermarket_sales.csv     # 1,000 real retail sales records
 ├── sql/
-│   ├── 01_schema_setup.sql              # DDL schema creation, constraints, ingestion scripts
-│   ├── 02_feature_engineering.sql       # Safe transformations (Time_of_day, Day_name, Month_name)
-│   └── 03_advanced_analytics.sql        # 37 structured business intelligence queries
+│   ├── 01_schema_setup.sql              # Creates the database and sales table
+│   ├── 02_feature_engineering.sql       # Adds time of day, day name, and month name
+│   └── 03_advanced_analytics.sql        # 37 business queries answering key questions
 ├── docs/
-│   └── Amazon_Sales_Data_Report.pdf     # Comprehensive case study report with execution proofs
-├── .gitignore                           # Git hygiene configuration
+│   └── Amazon_Sales_Data_Report.pdf     # Full project report with charts and results
+├── .gitignore                           # Git settings
 ├── LICENSE                              # MIT License
-└── README.md                            # Comprehensive project documentation
+└── README.md                            # Project documentation
 ```
 
 ---
 
-## 🗄️ Database Architecture & Schema
+## 🗄️ Dataset Details
 
-The relational schema centers on the `sales` entity:
+The dataset contains 1,000 rows and 17 columns tracking every purchase:
 
-| Attribute | Data Type | Constraint | Business Description |
-| :--- | :--- | :--- | :--- |
-| `Invoice_ID` | `VARCHAR(30)` | `PRIMARY KEY` | Unique transaction invoice identifier |
-| `Branch` | `VARCHAR(5)` | `NOT NULL` | Branch code (`A`, `B`, `C`) |
-| `City` | `VARCHAR(30)` | `NOT NULL` | Location (`Yangon`, `Naypyitaw`, `Mandalay`) |
-| `Customer_Type`| `VARCHAR(30)` | `NOT NULL` | Customer status (`Member` vs. `Normal`) |
-| `Gender` | `VARCHAR(10)` | `NOT NULL` | Customer gender (`Female`, `Male`) |
-| `Product_Line` | `VARCHAR(100)`| `NOT NULL` | Retail category (e.g., Food & Beverages, Fashion) |
-| `Unit_Price` | `DECIMAL(10,2)`| `NOT NULL` | Price per unit in USD |
-| `Quantity` | `INT` | `NOT NULL` | Number of units purchased |
-| `VAT` | `FLOAT` | `NOT NULL` | 5% Value-Added Tax levied |
-| `Total` | `DECIMAL(10,2)`| `NOT NULL` | Total invoice cost including VAT |
-| `Purchase_Date`| `DATE` | `NOT NULL` | Date of sale (Q1 2019) |
-| `Purchase_Time`| `TIME` | `NOT NULL` | Time of sale (24-hour format) |
-| `Payment_Method`| `VARCHAR(25)` | `NOT NULL` | Tender type (`Cash`, `Ewallet`, `Credit card`) |
-| `COGS` | `DECIMAL(10,2)`| `NOT NULL` | Cost of Goods Sold |
-| `Gross_Margin_%`| `FLOAT` | `NOT NULL` | Fixed margin percentage (~4.76%) |
-| `Gross_Income` | `DECIMAL(10,2)`| `NOT NULL` | Gross profit realized |
-| `Rating` | `DECIMAL(3,1)` | `NOT NULL` | Customer satisfaction rating (1.0 - 10.0 scale) |
-
----
-
-## ⚙️ Data Pipeline & Feature Engineering
-
-To facilitate deeper time-series and behavioral analysis, transactional records were enriched with three derived attributes in [`02_feature_engineering.sql`](sql/02_feature_engineering.sql):
-
-1. **`Time_of_day`**: Categorizes purchasing timestamps into distinct operational shifts:
-   * **Morning:** `06:00 - 11:59`
-   * **Afternoon:** `12:00 - 17:59`
-   * **Evening:** `18:00 - 23:59`
-2. **`day_name`**: Extracted weekday name (`Monday` through `Sunday`) to capture weekly cyclicality.
-3. **`month_name`**: Extracted calendar month (`January`, `February`, `March`) to evaluate quarterly pacing.
-
-```sql
--- Feature Engineering: Time of Day classification
-ALTER TABLE sales ADD COLUMN Time_of_day VARCHAR(15) NULL;
-
-UPDATE sales
-SET Time_of_day = CASE  
-    WHEN HOUR(Purchase_Time) BETWEEN 6 AND 11 THEN 'Morning'
-    WHEN HOUR(Purchase_Time) BETWEEN 12 AND 17 THEN 'Afternoon'
-    ELSE 'Evening'
-END;
-```
+| Column | What It Means |
+| :--- | :--- |
+| `Invoice_ID` | Unique receipt number for each sale |
+| `Branch` | Store branch code (`A`, `B`, or `C`) |
+| `City` | Store location (`Yangon`, `Naypyitaw`, `Mandalay`) |
+| `Customer_Type` | Customer membership status (`Member` or `Normal`) |
+| `Gender` | Customer gender (`Male` or `Female`) |
+| `Product_Line` | Product category (e.g. Food & Beverages, Fashion) |
+| `Unit_Price` | Price of a single item in USD |
+| `Quantity` | Number of items bought |
+| `VAT` | 5% tax added to the purchase |
+| `Total` | Total bill amount including tax |
+| `Purchase_Date` | Date of purchase (January to March 2019) |
+| `Purchase_Time` | Exact time the receipt was printed |
+| `Payment_Method`| Payment type (`Cash`, `Credit card`, or `Ewallet`) |
+| `COGS` | Cost of Goods Sold (store cost) |
+| `Gross_Income` | Profit earned on the sale |
+| `Rating` | Customer review score (from 1 to 10) |
 
 ---
 
-## 📊 Key Business Insights & Analytical Queries
+## ⚙️ New Features Created
 
-### 1. Top Revenue-Generating Product Lines
-* **Query Objective:** Identify top product categories by gross revenue and quantify units sold.
-* **SQL Implementation:**
-```sql
-SELECT 
-    Product_Line, 
-    ROUND(SUM(Total), 2) AS total_revenue,
-    SUM(Quantity) AS total_quantity_sold
-FROM sales
-GROUP BY Product_Line
-ORDER BY total_revenue DESC;
-```
-* **Key Finding:** `Food and beverages` and `Sports and travel` lead storewide revenue generation, contributing over 35% of total top-line sales.
+To help analyze shopping habits by time and day, three new columns were added to the table using SQL:
+
+1. **`Time_of_day`**: Divides purchases into three shifts:
+   * **Morning:** 6:00 AM – 11:59 AM
+   * **Afternoon:** 12:00 PM – 5:59 PM
+   * **Evening:** 6:00 PM – 11:59 PM
+2. **`day_name`**: The weekday of the purchase (`Monday`, `Tuesday`, etc.) to see which days are busiest.
+3. **`month_name`**: The month name (`January`, `February`, `March`) to track month-over-month growth.
 
 ---
 
-### 2. Customer Segmentation: Member vs. Normal
-* **Query Objective:** Contrast spending volume and average ticket size between loyalty program members and regular shoppers.
-* **SQL Implementation:**
-```sql
-SELECT 
-    Customer_Type, 
-    COUNT(*) AS total_transactions,
-    ROUND(SUM(Total), 2) AS total_revenue,
-    ROUND(AVG(Total), 2) AS avg_spend_per_visit
-FROM sales 
-GROUP BY Customer_Type
-ORDER BY total_revenue DESC;
-```
-* **Key Finding:** While transaction counts between Members and Normal customers are almost evenly split (~501 vs. 499), loyalty members generate a higher average ticket size ($324.97 vs. $318.99).
+## 📊 Key Business Insights
+
+Here are the main findings discovered from the data:
+
+### 1. Best Selling Products
+* **`Food and beverages`** and **`Sports and travel`** made the most money, generating over **$56,000 each** (making up more than 35% of all store revenue).
+* **`Health and beauty`** had the lowest sales volume, suggesting the store should either promote these products better or adjust inventory.
+
+### 2. Members vs. Regular Walk-in Shoppers
+* Total visits were almost an even 50/50 split between loyalty members (501 visits) and regular walk-ins (499 visits).
+* However, **members spent more per basket** (averaging **$324.97** per visit compared to **$318.99** for regular customers), proving the loyalty program brings higher cart values.
+
+### 3. Shopping Preferences by Gender
+* **Female customers** purchased most often in **`Fashion accessories`**, followed closely by `Food and beverages`.
+* **Male customers** shopped most often in **`Health and beauty`**, followed by `Electronic accessories`.
+
+### 4. Peak Shopping Hours
+* **Afternoon (12:00 PM to 6:00 PM) is the busiest time of day**, bringing in over **52% of all daily sales and customer visits**.
+* Evenings are the second busiest, while mornings have the lowest footfall. 
+* *Business Recommendation:* Schedule more checkout cashiers and floor staff between 12:00 PM and 6:00 PM to keep wait times low.
+
+### 5. Top Performing Store Branch
+* **Branch C in Naypyitaw** was the clear winner:
+  * Highest Total Sales: **$110,568.71**
+  * Highest Customer Rating: **7.07 out of 10**
+* Branch A (Yangon) came second in sales ($106,200), while Branch B (Mandalay) had the lowest sales ($106,197) but remained very close.
+
+### 6. Preferred Payment Methods
+* **E-wallets (digital payments) and Cash were tied for first place**, each taking about **34% of all transactions**.
+* Credit cards accounted for the remaining 32%, showing customers like having multiple payment options.
+
+### 7. Customer Satisfaction Timing
+* Customers gave their **highest ratings during afternoon transactions**, matching the peak traffic hours. This shows the store maintains good customer service even during busy hours.
 
 ---
 
-### 3. Gender Preference by Product Line (CTE + Window Function)
-* **Query Objective:** Determine the top-selling product category by purchase frequency for each gender using window functions.
-* **SQL Implementation:**
-```sql
-WITH RankedCategoryByGender AS (
-    SELECT 
-        Gender, 
-        Product_Line, 
-        COUNT(*) AS purchase_frequency,
-        ROUND(SUM(Total), 2) AS total_sales,
-        ROW_NUMBER() OVER (
-            PARTITION BY Gender 
-            ORDER BY COUNT(*) DESC
-        ) AS rank_order
-    FROM sales
-    GROUP BY Gender, Product_Line
-)
-SELECT 
-    Gender, 
-    Product_Line AS top_preferred_product_line, 
-    purchase_frequency,
-    total_sales
-FROM RankedCategoryByGender
-WHERE rank_order = 1;
-```
-* **Key Finding:** Female shoppers purchase most frequently in `Fashion accessories`, while male shoppers show highest purchase frequency in `Health and beauty`.
+## 🛠️ SQL Skills Used
+
+* **Database & Table Setup:** `CREATE TABLE`, data types, and primary keys.
+* **Feature Engineering:** `ALTER TABLE` and `UPDATE` using `CASE WHEN` logic and date functions (`HOUR`, `DAYNAME`, `MONTHNAME`).
+* **Summary Numbers:** `SUM`, `AVG`, `MIN`, `MAX`, and `COUNT`.
+* **Grouping & Filtering:** `GROUP BY`, `ORDER BY`, and `HAVING` filters.
+* **Advanced Ranking:** Common Table Expressions (`WITH ... AS`) and Window Functions (`ROW_NUMBER() OVER (PARTITION BY ...)`).
+* **Subqueries:** Comparing individual category sales against storewide averages.
 
 ---
 
-### 4. Peak Shopping Hours & Temporal Traffic
-* **Query Objective:** Identify peak customer traffic times across operational windows to optimize staffing.
-* **SQL Implementation:**
-```sql
-SELECT 
-    Time_of_day, 
-    COUNT(*) AS sales_count,
-    ROUND(SUM(Total), 2) AS time_period_revenue,
-    ROUND(AVG(Total), 2) AS avg_ticket_size
-FROM sales 
-GROUP BY Time_of_day
-ORDER BY sales_count DESC;
-```
-* **Key Finding:** **Afternoon (12:00 PM – 6:00 PM)** accounts for over 52% of total transaction volume and revenue, representing the core shift for floor staff and checkout register allocation.
+## 🚀 How to Run This Project
+
+### What You Need
+* MySQL Server or MySQL Workbench installed on your computer.
+
+### Quick Setup Steps
+1. **Clone this repository:**
+   ```bash
+   git clone https://github.com/jadavharsh109/amazon-sales-sql-analytics.git
+   cd amazon-sales-sql-analytics
+   ```
+2. **Set up the database and import data:**
+   * Run [`sql/01_schema_setup.sql`](sql/01_schema_setup.sql).
+   * Import [`data/amazon_supermarket_sales.csv`](data/amazon_supermarket_sales.csv) using the MySQL Workbench Table Data Import Wizard.
+3. **Run feature engineering:**
+   * Run [`sql/02_feature_engineering.sql`](sql/02_feature_engineering.sql) to add the time and day columns.
+4. **Run the analysis queries:**
+   * Run [`sql/03_advanced_analytics.sql`](sql/03_advanced_analytics.sql) to see all the business insights.
 
 ---
 
-### 5. Branch & City Revenue Optimization
-* **Query Objective:** Assess revenue, volume, and customer ratings across store branches.
-* **SQL Implementation:**
-```sql
-SELECT 
-    Branch, 
-    City,
-    COUNT(*) AS total_orders,
-    SUM(Quantity) AS total_units_sold,
-    ROUND(SUM(Total), 2) AS total_sales,
-    ROUND(AVG(Rating), 2) AS avg_satisfaction_rating
-FROM sales 
-GROUP BY Branch, City
-ORDER BY total_sales DESC;
-```
-* **Key Finding:** **Branch C (Naypyitaw)** generated the highest total revenue ($110,568.71) with the top average customer satisfaction rating (7.07 / 10).
+## 📄 Project Report
 
----
-
-### 6. Value-Added Tax (VAT) & Margin Analysis
-* **Query Objective:** Track VAT contributions per payment tender to support financial accounting.
-* **SQL Implementation:**
-```sql
-SELECT 
-    Payment_Method, 
-    ROUND(SUM(VAT), 2) AS total_vat_collected,
-    ROUND(SUM(Total), 2) AS total_revenue_processed
-FROM sales
-GROUP BY Payment_Method
-ORDER BY total_vat_collected DESC;
-```
-* **Key Finding:** `Ewallet` and `Cash` transactions each account for approximately 34% of tax collections, highlighting high digital wallet penetration.
-
----
-
-## 🛠️ Advanced SQL Techniques Demonstrated
-
-* **Common Table Expressions (CTEs):** Modularized nested aggregation logic using `WITH RankedCategoryByGender AS (...)`.
-* **Analytical Window Functions:** Applied `ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...)` for segmented ranking without data collapse.
-* **Conditional Logic & Case Statements:** Dynamically derived operational shifts and automated product performance tiers (`Good` vs. `Bad`) based on scalar subquery averages.
-* **Temporal Functions:** Leveraged `HOUR()`, `DAYNAME()`, `MONTHNAME()`, and `FIELD()` for custom ordinal sorting of weekdays and shifts.
-* **Data Cleansing & Idempotency:** Integrated `SET SQL_SAFE_UPDATES = 0` toggles and `DROP TABLE IF EXISTS` guards for safe, repeatable script execution.
-
----
-
-## 🚀 Quickstart & Reproduction Guide
-
-### Prerequisites
-* **MySQL Server 8.0+** or **MySQL Workbench** installed locally.
-* Git installed on your workstation.
-
-### Step 1: Clone the Repository
-```bash
-git clone https://github.com/jadavharsh109/amazon-sales-sql-analytics.git
-cd amazon-sales-sql-analytics
-```
-
-### Step 2: Database Initialization & Ingestion
-Open your MySQL terminal or Workbench and execute:
-```sql
-SOURCE sql/01_schema_setup.sql;
-```
-*(Import `data/amazon_supermarket_sales.csv` using the Table Data Import Wizard or `LOAD DATA LOCAL INFILE` as documented in `01_schema_setup.sql`).*
-
-### Step 3: Run Feature Engineering
-```sql
-SOURCE sql/02_feature_engineering.sql;
-```
-
-### Step 4: Execute Analytical Business Queries
-```sql
-SOURCE sql/03_advanced_analytics.sql;
-```
-
----
-
-## 📄 Project Documentation
-
-For complete query outputs, visual chart analysis, and project presentation slides, refer to:
-* 📑 **[`Amazon_Sales_Data_Report.pdf`](docs/Amazon_Sales_Data_Report.pdf)** located in the `docs/` folder.
+For full charts, query screenshots, and presentation slides, check out:
+* 📑 **[`Amazon_Sales_Data_Report.pdf`](docs/Amazon_Sales_Data_Report.pdf)** in the `docs/` folder.
 
 ---
 
@@ -282,4 +176,4 @@ For complete query outputs, visual chart analysis, and project presentation slid
 * 🐙 **GitHub:** [github.com/jadavharsh109](https://github.com/jadavharsh109)
 * 📧 **Email:** [jadavharsh109@gmail.com](mailto:jadavharsh109@gmail.com)
 
-*If you found this project helpful or insightful, consider giving it a ⭐ on GitHub!*
+*If this project was helpful to you, feel free to give it a ⭐!*
